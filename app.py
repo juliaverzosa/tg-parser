@@ -14,11 +14,16 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # ----------------------------
 # Load credentials from Streamlit Secrets
 # ----------------------------
-# Make sure your secrets.toml has:
+# In Streamlit Cloud, go to "Manage App" → "Secrets"
+# Add your secret like this:
 # [google_sheets]
-# GOOGLE_CREDS_JSON = """ { ... full JSON ... } """
-creds_dict = json.loads(st.secrets["google_sheets"]["GOOGLE_CREDS_JSON"])
-creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+# GOOGLE_CREDS_JSON = """ { ... full JSON content ... } """
+try:
+    creds_dict = json.loads(st.secrets["google_sheets"]["GOOGLE_CREDS_JSON"])
+    creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+except KeyError:
+    st.error("Google Sheets credentials not found! Make sure they are set in Streamlit Secrets.")
+    st.stop()
 
 # Build Google Sheets service
 service = build('sheets', 'v4', credentials=creds)
