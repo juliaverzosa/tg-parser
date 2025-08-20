@@ -3,17 +3,24 @@ import re
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 
-
+# ----------------------------
+# Google Sheets configuration
+# ----------------------------
 SPREADSHEET_ID = '163qEg3eJ6cHY8RjnMeiargVhDjdzZxVJD8dy4uBYtd8'
 RANGE_NAME = 'Sheet1!A2:F'
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-SERVICE_ACCOUNT_FILE = 'credentials.json'
 
-creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+# Load credentials from Streamlit Secrets
+creds_info = st.secrets["google_sheets"]
+creds = Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+
+# Build Google Sheets service
 service = build('sheets', 'v4', credentials=creds)
 sheet = service.spreadsheets()
 
-# extrat data from copied telegram report
+# ----------------------------
+# Extract data from Telegram report
+# ----------------------------
 def extract_teams(message):
     lines = message.strip().split('\n')
     extracted_rows = []
@@ -37,10 +44,11 @@ def extract_teams(message):
                     extracted_rows.append([senior, junior, dispatch, delay, completion, date])
     return extracted_rows
 
-
+# ----------------------------
+# Streamlit UI
+# ----------------------------
 st.set_page_config(page_title="Globe Telegram Parser", layout="wide")
 
-# css ui here
 globe_blue = "#EAEEF3"
 st.markdown(f"""
     <style>
@@ -67,7 +75,6 @@ st.markdown(f"""
     }}
     </style>
 """, unsafe_allow_html=True)
-
 
 col1, col2 = st.columns([1, 6])
 with col1:
