@@ -1,5 +1,6 @@
 import streamlit as st
 import re
+import json
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 
@@ -10,9 +11,14 @@ SPREADSHEET_ID = '163qEg3eJ6cHY8RjnMeiargVhDjdzZxVJD8dy4uBYtd8'
 RANGE_NAME = 'Sheet1!A2:F'
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
+# ----------------------------
 # Load credentials from Streamlit Secrets
-creds_info = st.secrets["google_sheets"]
-creds = Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+# ----------------------------
+# Make sure your secrets.toml has:
+# [google_sheets]
+# GOOGLE_CREDS_JSON = """ { ... full JSON ... } """
+creds_dict = json.loads(st.secrets["google_sheets"]["GOOGLE_CREDS_JSON"])
+creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
 
 # Build Google Sheets service
 service = build('sheets', 'v4', credentials=creds)
